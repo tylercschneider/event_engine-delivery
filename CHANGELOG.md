@@ -12,3 +12,12 @@ All notable changes to this project are documented here, following
 - Verbatim copy of `event_engine` as the starting point for the delivery layer
   (standalone, depends only on Rails); full suite green. Inherited RuboCop offenses
   grandfathered in `.rubocop_todo.yml` so the lint gate still checks new code.
+
+### Changed
+- Connected to `event_engine` core: deleted the duplicated core files (definitions,
+  schema, registry, `Event`, `EventBuilder`, subscribers, etc.) and now depend on the
+  `event_engine` gem for them. Delivery registers its pipeline as a handler via the new
+  `EventEngine::Delivery::Handler` (built `Event` → level 1 subscribers / 2 job / 3+
+  outbox+transport). Delivery configuration moved to `EventEngine::Delivery.configure`
+  (`transport`, `delivery_adapter`, `batch_size`, `retention_period`, `cloud_*`). The
+  dashboard mounts on `EventEngine::Delivery::Engine`.

@@ -11,7 +11,7 @@ class EventEngine::ReRunPublishTest < ActiveSupport::TestCase
     )
 
     transport = EventEngine::Transports::InMemoryTransport.new
-    EventEngine.configure { |c| c.transport = transport }
+    EventEngine::Delivery.configure { |c| c.transport = transport }
 
     # first run
     EventEngine::PublishOutboxEventsJob.perform_now

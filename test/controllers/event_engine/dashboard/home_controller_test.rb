@@ -4,11 +4,11 @@ module EventEngine
   module Dashboard
     class HomeControllerTest < ActionDispatch::IntegrationTest
       setup do
-        EventEngine.configuration.dashboard_auth = ->(_) { true }
+        EventEngine::Delivery.configuration.dashboard_auth = ->(_) { true }
       end
 
       teardown do
-        EventEngine.configuration.dashboard_auth = nil
+        EventEngine::Delivery.configuration.dashboard_auth = nil
       end
 
       test "index shows outbox stats" do

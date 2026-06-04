@@ -29,7 +29,7 @@ class EventEngineSmokeTest < ActiveSupport::TestCase
 
     transport = EventEngine::Transports::InMemoryTransport.new
 
-    EventEngine.configure do |c|
+    EventEngine::Delivery.configure do |c|
       c.delivery_adapter = :inline
       c.transport = transport
       c.batch_size = 10

@@ -1,3 +1,3 @@
 Rails.application.routes.draw do
-  mount EventEngine::Engine => "/event_engine"
+  mount EventEngine::Delivery::Engine => "/event_engine", as: :event_engine
 end

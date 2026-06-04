@@ -16,13 +16,13 @@ module EventEngine
       private
 
       def capture_log(&block)
-        original = EventEngine.configuration.instance_variable_get(:@logger)
+        original = EventEngine::Delivery.configuration.instance_variable_get(:@logger)
         io = StringIO.new
-        EventEngine.configuration.instance_variable_set(:@logger, Logger.new(io))
+        EventEngine::Delivery.configuration.instance_variable_set(:@logger, Logger.new(io))
         yield
         io.string
       ensure
-        EventEngine.configuration.instance_variable_set(:@logger, original)
+        EventEngine::Delivery.configuration.instance_variable_set(:@logger, original)
       end
     end
   end

@@ -1,7 +1,17 @@
 module EventEngine
   module Delivery
+    class << self
+      def configuration
+        @configuration ||= Configuration.new
+      end
+
+      def configure
+        yield(configuration)
+      end
+    end
+
     def self.enqueue(&block)
-      adapter = EventEngine.configuration.delivery_adapter || :inline
+      adapter = configuration.delivery_adapter || :inline
 
       case adapter
       when :inline
