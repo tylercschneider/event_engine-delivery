@@ -5,17 +5,17 @@ class DeliveryAdapterTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   setup do
-    @original_delivery_adapter = EventEngine.configuration.delivery_adapter
+    @original_delivery_adapter = EventEngine::Delivery.configuration.delivery_adapter
   end
 
   teardown do
-    EventEngine.configuration.delivery_adapter = @original_delivery_adapter
+    EventEngine::Delivery.configuration.delivery_adapter = @original_delivery_adapter
   end
 
   test "inline adapter publishes immediately" do
     called = false
 
-    EventEngine.configure do |config|
+    EventEngine::Delivery.configure do |config|
       config.delivery_adapter = :inline
     end
 
@@ -29,7 +29,7 @@ class DeliveryAdapterTest < ActiveSupport::TestCase
   test "inline adapter defers publishing when inside a transaction" do
     called = false
 
-    EventEngine.configure do |config|
+    EventEngine::Delivery.configure do |config|
       config.delivery_adapter = :inline
     end
 
@@ -47,7 +47,7 @@ class DeliveryAdapterTest < ActiveSupport::TestCase
   test "inline adapter does not publish on rollback" do
     called = false
 
-    EventEngine.configure do |config|
+    EventEngine::Delivery.configure do |config|
       config.delivery_adapter = :inline
     end
 
@@ -65,7 +65,7 @@ class DeliveryAdapterTest < ActiveSupport::TestCase
   test "manual adapter does not publish" do
     called = false
 
-    EventEngine.configure do |config|
+    EventEngine::Delivery.configure do |config|
       config.delivery_adapter = :manual
     end
 
@@ -77,7 +77,7 @@ class DeliveryAdapterTest < ActiveSupport::TestCase
   end
 
   test "active_job adapter enqueues PublishOutboxEventsJob" do
-    EventEngine.configure do |config|
+    EventEngine::Delivery.configure do |config|
       config.delivery_adapter = :active_job
     end
 

@@ -3,7 +3,7 @@ module EventEngine
     queue_as :default
 
     def perform
-      retention_period = EventEngine.configuration.retention_period
+      retention_period = EventEngine::Delivery.configuration.retention_period
       return unless retention_period
 
       cutoff = Time.current - retention_period

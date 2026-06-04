@@ -52,7 +52,7 @@ module EventEngine
         response = http.request(request)
         response.code.start_with?("2")
       rescue StandardError => e
-        EventEngine.configuration.logger.error(
+        EventEngine::Delivery.configuration.logger.error(
           "[EventEngine::Cloud] API request failed: #{e.class} - #{e.message}"
         )
         false

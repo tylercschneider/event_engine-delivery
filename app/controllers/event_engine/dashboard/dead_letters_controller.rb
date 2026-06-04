@@ -16,12 +16,12 @@ module EventEngine
       def retry
         event = OutboxEvent.dead_lettered.find(params[:id])
         event.retry!
-        redirect_to dashboard_dead_letters_path, notice: "Event #{event.id} queued for retry"
+        redirect_to "#{request.script_name}#{dashboard_dead_letters_path}", notice: "Event #{event.id} queued for retry"
       end
 
       def retry_all
         OutboxEvent.dead_lettered.find_each(&:retry!)
-        redirect_to dashboard_dead_letters_path, notice: "All dead-lettered events queued for retry"
+        redirect_to "#{request.script_name}#{dashboard_dead_letters_path}", notice: "All dead-lettered events queued for retry"
       end
     end
   end

@@ -7,15 +7,15 @@ module EventEngine
       Rails.application.load_tasks
       Rake::Task.tasks.each(&:reenable)
 
-      @original_retention = EventEngine.configuration.retention_period
+      @original_retention = EventEngine::Delivery.configuration.retention_period
     end
 
     teardown do
-      EventEngine.configuration.retention_period = @original_retention
+      EventEngine::Delivery.configuration.retention_period = @original_retention
     end
 
     test "outbox:cleanup deletes old published events" do
-      EventEngine.configuration.retention_period = 30.days
+      EventEngine::Delivery.configuration.retention_period = 30.days
 
       old_event = OutboxEvent.create!(
         event_name: "order.created",
@@ -46,7 +46,7 @@ module EventEngine
     end
 
     test "outbox:cleanup never deletes unpublished events" do
-      EventEngine.configuration.retention_period = 30.days
+      EventEngine::Delivery.configuration.retention_period = 30.days
 
       unpublished = OutboxEvent.create!(
         event_name: "order.created",
@@ -64,7 +64,7 @@ module EventEngine
     end
 
     test "outbox:cleanup never deletes dead-lettered events" do
-      EventEngine.configuration.retention_period = 30.days
+      EventEngine::Delivery.configuration.retention_period = 30.days
 
       dead_lettered = OutboxEvent.create!(
         event_name: "order.created",
@@ -84,7 +84,7 @@ module EventEngine
     end
 
     test "outbox:cleanup warns when retention_period not configured" do
-      EventEngine.configuration.retention_period = nil
+      EventEngine::Delivery.configuration.retention_period = nil
 
       output = capture_io do
         Rake::Task["event_engine:outbox:cleanup"].invoke

@@ -2,7 +2,7 @@ namespace :event_engine do
   namespace :outbox do
     desc "Delete published events older than retention_period"
     task cleanup: :environment do
-      retention_period = EventEngine.configuration.retention_period
+      retention_period = EventEngine::Delivery.configuration.retention_period
 
       unless retention_period
         puts "retention_period not configured. Set config.retention_period in your initializer."

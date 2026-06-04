@@ -6,15 +6,15 @@ module EventEngine
     class ReporterTest < ActiveSupport::TestCase
       setup do
         Reporter.reset!
-        @original_api_key = EventEngine.configuration.cloud_api_key
-        @original_endpoint = EventEngine.configuration.cloud_endpoint
-        @original_batch_size = EventEngine.configuration.cloud_batch_size
-        @original_flush_interval = EventEngine.configuration.cloud_flush_interval
+        @original_api_key = EventEngine::Delivery.configuration.cloud_api_key
+        @original_endpoint = EventEngine::Delivery.configuration.cloud_endpoint
+        @original_batch_size = EventEngine::Delivery.configuration.cloud_batch_size
+        @original_flush_interval = EventEngine::Delivery.configuration.cloud_flush_interval
 
-        EventEngine.configuration.cloud_api_key = "ee_test_abc123"
-        EventEngine.configuration.cloud_endpoint = "https://api.eventengine.dev/v1/ingest"
-        EventEngine.configuration.cloud_batch_size = 100
-        EventEngine.configuration.cloud_flush_interval = 60
+        EventEngine::Delivery.configuration.cloud_api_key = "ee_test_abc123"
+        EventEngine::Delivery.configuration.cloud_endpoint = "https://api.eventengine.dev/v1/ingest"
+        EventEngine::Delivery.configuration.cloud_batch_size = 100
+        EventEngine::Delivery.configuration.cloud_flush_interval = 60
 
         stub_request(:post, "https://api.eventengine.dev/v1/ingest/events")
           .to_return(status: 202, body: '{"received": 0}')
@@ -24,10 +24,10 @@ module EventEngine
 
       teardown do
         Reporter.reset!
-        EventEngine.configuration.cloud_api_key = @original_api_key
-        EventEngine.configuration.cloud_endpoint = @original_endpoint
-        EventEngine.configuration.cloud_batch_size = @original_batch_size
-        EventEngine.configuration.cloud_flush_interval = @original_flush_interval
+        EventEngine::Delivery.configuration.cloud_api_key = @original_api_key
+        EventEngine::Delivery.configuration.cloud_endpoint = @original_endpoint
+        EventEngine::Delivery.configuration.cloud_batch_size = @original_batch_size
+        EventEngine::Delivery.configuration.cloud_flush_interval = @original_flush_interval
       end
 
       test "instance returns singleton" do
@@ -81,7 +81,7 @@ module EventEngine
       end
 
       test "auto-flushes when batch reaches max size" do
-        EventEngine.configuration.cloud_batch_size = 3
+        EventEngine::Delivery.configuration.cloud_batch_size = 3
         Reporter.reset!
         reporter = Reporter.instance
         reporter.start
@@ -124,7 +124,7 @@ module EventEngine
 
       test "start logs reporter started message" do
         log = StringIO.new
-        EventEngine.configuration.logger = Logger.new(log)
+        EventEngine::Delivery.configuration.logger = Logger.new(log)
 
         reporter = Reporter.instance
         reporter.start
@@ -132,12 +132,12 @@ module EventEngine
         assert_match(/Cloud Reporter started/, log.string)
         assert_match(/api\.eventengine\.dev/, log.string)
       ensure
-        EventEngine.configuration.logger = Logger.new($stdout)
+        EventEngine::Delivery.configuration.logger = Logger.new($stdout)
       end
 
       test "shutdown logs reporter stopped message" do
         log = StringIO.new
-        EventEngine.configuration.logger = Logger.new(log)
+        EventEngine::Delivery.configuration.logger = Logger.new(log)
 
         reporter = Reporter.instance
         reporter.start
@@ -145,7 +145,7 @@ module EventEngine
 
         assert_match(/Cloud Reporter stopped/, log.string)
       ensure
-        EventEngine.configuration.logger = Logger.new($stdout)
+        EventEngine::Delivery.configuration.logger = Logger.new($stdout)
       end
 
       test "start spawns a timer thread and shutdown stops it" do
@@ -162,7 +162,7 @@ module EventEngine
       end
 
       test "timer periodically flushes entries" do
-        EventEngine.configuration.cloud_flush_interval = 0.1
+        EventEngine::Delivery.configuration.cloud_flush_interval = 0.1
         Reporter.reset!
         reporter = Reporter.instance
         reporter.start
@@ -178,7 +178,7 @@ module EventEngine
         stub_request(:post, "https://api.eventengine.dev/v1/ingest/events")
           .to_raise(StandardError.new("connection refused"))
 
-        EventEngine.configuration.cloud_flush_interval = 0.1
+        EventEngine::Delivery.configuration.cloud_flush_interval = 0.1
         Reporter.reset!
         reporter = Reporter.instance
         reporter.start

@@ -20,7 +20,7 @@ module EventEngine
       private
 
       def logger
-        EventEngine.configuration.logger
+        EventEngine::Delivery.configuration.logger
       end
     end
   end

@@ -11,7 +11,7 @@ class EventEngine::PublishOutboxEventsJobTest < ActiveJob::TestCase
     )
 
     transport = EventEngine::Transports::InMemoryTransport.new
-    EventEngine.configure { |c| c.transport = transport }
+    EventEngine::Delivery.configure { |c| c.transport = transport }
 
     EventEngine::PublishOutboxEventsJob.perform_now
 
@@ -29,7 +29,7 @@ class EventEngine::PublishOutboxEventsJobTest < ActiveJob::TestCase
     )
 
     transport = EventEngine::Transports::InMemoryTransport.new
-    EventEngine.configure { |c| c.transport = transport }
+    EventEngine::Delivery.configure { |c| c.transport = transport }
 
     EventEngine::PublishOutboxEventsJob.perform_now
 
@@ -38,7 +38,7 @@ class EventEngine::PublishOutboxEventsJobTest < ActiveJob::TestCase
   end
 
   test "raises a clear error when transport is not configured" do
-    EventEngine.configure { |c| c.transport = nil }
+    EventEngine::Delivery.configure { |c| c.transport = nil }
 
     error = assert_raises(RuntimeError) do
       EventEngine::PublishOutboxEventsJob.perform_now
@@ -53,7 +53,7 @@ class EventEngine::PublishOutboxEventsJobTest < ActiveJob::TestCase
     e3 = EventEngine::OutboxEvent.create!(event_type: "A", event_name: "a", event_version: 1, occurred_at: Time.current, payload: { x: 3 })
 
     transport = EventEngine::Transports::InMemoryTransport.new
-    EventEngine.configure do |c|
+    EventEngine::Delivery.configure do |c|
       c.transport = transport
       c.batch_size = 2
     end
@@ -75,9 +75,9 @@ class EventEngine::PublishOutboxEventsJobTest < ActiveJob::TestCase
 
       transport = EventEngine::Transports::InMemoryTransport.new
 
-      EventEngine.configuration.transport = transport
-      EventEngine.configuration.batch_size = 10
-      EventEngine.configuration.max_attempts = 5
+      EventEngine::Delivery.configuration.transport = transport
+      EventEngine::Delivery.configuration.batch_size = 10
+      EventEngine::Delivery.configuration.max_attempts = 5
 
       EventEngine::PublishOutboxEventsJob.new.perform
 

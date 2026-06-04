@@ -3,15 +3,15 @@ require "test_helper"
 module EventEngine
   class OutboxCleanupJobTest < ActiveSupport::TestCase
     setup do
-      @original_retention = EventEngine.configuration.retention_period
+      @original_retention = EventEngine::Delivery.configuration.retention_period
     end
 
     teardown do
-      EventEngine.configuration.retention_period = @original_retention
+      EventEngine::Delivery.configuration.retention_period = @original_retention
     end
 
     test "deletes old published events" do
-      EventEngine.configuration.retention_period = 30.days
+      EventEngine::Delivery.configuration.retention_period = 30.days
 
       old_event = OutboxEvent.create!(
         event_name: "order.created",
@@ -39,7 +39,7 @@ module EventEngine
     end
 
     test "does nothing when retention_period not configured" do
-      EventEngine.configuration.retention_period = nil
+      EventEngine::Delivery.configuration.retention_period = nil
 
       event = OutboxEvent.create!(
         event_name: "order.created",

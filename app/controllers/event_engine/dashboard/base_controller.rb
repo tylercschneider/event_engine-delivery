@@ -6,10 +6,10 @@ module EventEngine
       private
 
       def authenticate_dashboard!
-        auth = EventEngine.configuration.dashboard_auth
+        auth = EventEngine::Delivery.configuration.dashboard_auth
 
         unless auth
-          EventEngine.configuration.logger.warn(
+          EventEngine::Delivery.configuration.logger.warn(
             "[EventEngine] Dashboard access denied: dashboard_auth is not configured. " \
             "Set config.dashboard_auth in your EventEngine initializer to a callable that " \
             "returns true for authorized users."

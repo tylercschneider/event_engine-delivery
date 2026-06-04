@@ -39,7 +39,7 @@ module EventEngine
       #
       # @return [void]
       def start
-        config = EventEngine.configuration
+        config = EventEngine::Delivery.configuration
         @batch = Batch.new(max_size: config.cloud_batch_size)
         @client = ApiClient.new(
           api_key: config.cloud_api_key,
@@ -105,7 +105,7 @@ module EventEngine
 
         @client.send_batch(entries)
       rescue StandardError => e
-        EventEngine.configuration.logger.error(
+        EventEngine::Delivery.configuration.logger.error(
           "[EventEngine::Cloud] Flush failed: #{e.class} - #{e.message}"
         )
       end
@@ -148,7 +148,7 @@ module EventEngine
       end
 
       def logger
-        EventEngine.configuration.logger
+        EventEngine::Delivery.configuration.logger
       end
     end
   end
