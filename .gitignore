@@ -1,0 +1,19 @@
+/.bundle/
+/doc/
+/log/*.log
+/pkg/
+/tmp/
+*.gem
+Gemfile.lock
+/test/dummy/db/*.sqlite3
+/test/dummy/db/*.sqlite3-*
+/test/dummy/log/*.log
+/test/dummy/storage/
+/test/dummy/tmp/
+
+# Secrets and credentials
+.env*
+*.pem
+*.key
+master.key
+config/credentials/*.key
