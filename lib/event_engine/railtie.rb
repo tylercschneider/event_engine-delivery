@@ -1,0 +1,9 @@
+module EventEngine
+  class Railtie < Rails::Railtie
+    rake_tasks do
+      load "tasks/event_engine_tasks.rake"
+      load "tasks/event_engine_schema.rake"
+      load "tasks/event_engine_schema_check.rake"
+    end
+  end
+end
