@@ -24,8 +24,11 @@ $ bundle
 
 ## Status
 
-Early extraction from `event_engine`. The delivery code moves over one cohesive unit
-at a time: transports → outbox → emit path → dashboard/cloud → configuration.
+Mid-extraction from `event_engine`, via **copy-then-subtract**: this gem starts as a
+verbatim copy of `event_engine` (standalone, green) and is then slimmed as
+`event_engine` becomes the pure core it depends on. During this phase its classes live
+under the `EventEngine::` namespace (not `EventEngine::Delivery::`), so consumers
+migrate with a Gemfile change, not code edits.
 
 ## License
 

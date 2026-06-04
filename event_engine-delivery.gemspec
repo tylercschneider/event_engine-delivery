@@ -1,8 +1,8 @@
-require_relative "lib/event_engine/delivery/version"
+require_relative "lib/event_engine/version"
 
 Gem::Specification.new do |spec|
   spec.name        = "event_engine-delivery"
-  spec.version     = EventEngine::Delivery::VERSION
+  spec.version     = EventEngine::VERSION
   spec.authors     = [ "tylercschneider" ]
   spec.email       = [ "tylercschneider@gmail.com" ]
   spec.homepage    = "https://github.com/tylercschneider/event_engine-delivery"
@@ -25,5 +25,4 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_dependency "rails", ">= 7.1.6", "< 9"
-  spec.add_dependency "event_engine"
 end

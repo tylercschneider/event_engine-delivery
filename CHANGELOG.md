@@ -9,3 +9,6 @@ All notable changes to this project are documented here, following
 ### Added
 - Initial gem scaffold: mountable `EventEngine::Delivery` Rails engine depending on
   `event_engine`.
+- Verbatim copy of `event_engine` as the starting point for the delivery layer
+  (standalone, depends only on Rails); full suite green. Inherited RuboCop offenses
+  grandfathered in `.rubocop_todo.yml` so the lint gate still checks new code.
