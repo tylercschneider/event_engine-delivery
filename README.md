@@ -44,7 +44,6 @@ when you need durable, reliable delivery.
 - [Dashboard](#dashboard)
 - [Cloud reporter](#cloud-reporter)
 - [Customization recipes](#customization-recipes)
-- [Gaps & fragile assumptions](#gaps--fragile-assumptions)
 - [License](#license)
 
 ---
@@ -80,12 +79,9 @@ EventEngine::Delivery.configure do |config|
 end
 ```
 
-> **Use `EventEngine::Delivery.configure`, not `EventEngine.configure`.** Delivery
-> options (`delivery_adapter`, `transport`, …) live on
-> `EventEngine::Delivery::Configuration`. The core `EventEngine.configure` only knows
-> about `logger`; setting delivery options there raises `NoMethodError`. (The
-> generated initializer template currently shows the wrong form — see
-> [Gaps & fragile assumptions](#gaps--fragile-assumptions).)
+> **Configure delivery via `EventEngine::Delivery.configure`.** Delivery options
+> (`delivery_adapter`, `transport`, …) live on `EventEngine::Delivery::Configuration`.
+> The core `EventEngine.configure` only knows about `logger`.
 
 ---
 
@@ -467,8 +463,8 @@ status (emitted/published/dead-lettered), timestamps, attempt counts, and error
 classes for dead letters.
 
 **Failure isolation:** all calls are fire-and-forget with a 5s timeout over
-`Net::HTTP`; errors are logged, never raised. A misconfigured key/endpoint fails
-silently (see gaps).
+`Net::HTTP`; errors are logged, never raised — the reporter can never affect your
+app.
 
 ---
 
@@ -488,43 +484,6 @@ inside `publish`.
 **Tune durability per event.** Change `event_level` in the definition (1→2→3→4). No
 producer code changes; re-dump the schema (level isn't fingerprinted, so it won't
 bump the version).
-
----
-
-## Gaps & fragile assumptions
-
-Real rough edges found while documenting. **(Call-outs, not yet fixed in code.)**
-
-1. **Generated initializer uses the wrong config entry point.** The install
-   generator's template writes `EventEngine.configure do |c| c.delivery_adapter = … end`,
-   but `delivery_adapter=` is on `EventEngine::Delivery::Configuration`. As written it
-   raises `NoMethodError` at boot. Use `EventEngine::Delivery.configure` (as in this
-   README) until the template is fixed.
-
-2. **Unpinned core dependency.** The gemspec declares `add_dependency "event_engine"`
-   with no version constraint; a breaking core change could be picked up silently.
-
-3. **Concurrent publishers can double-deliver on non-Postgres.** Row locking uses
-   `FOR UPDATE SKIP LOCKED` on PostgreSQL but a no-op strategy elsewhere (e.g.
-   SQLite). Running multiple publishers concurrently off a non-PG database risks
-   duplicate deliveries, silently.
-
-4. **Kafka topic naming is fixed** (`events.{event_name}`) — no environment
-   namespacing or partition key in the built-in transport. Use a custom transport
-   (above) on shared clusters.
-
-5. **Retries don't distinguish transient vs permanent errors.** Every exception
-   increments attempts the same way; a validation error and a broker timeout both
-   march toward dead-lettering.
-
-6. **The handler always registers at `levels: :all`** and can't be opted out via
-   config. To fully take over routing you'd `EventEngine.reset_handlers!` and
-   re-register.
-
-7. **Cloud failures are silent.** A bad `cloud_api_key`/endpoint logs and drops data;
-   there's no surfaced error and no retry of failed batches.
-
-8. **Dashboard is unstyled and pagination is hardcoded** to 20/page.
 
 ---
 
