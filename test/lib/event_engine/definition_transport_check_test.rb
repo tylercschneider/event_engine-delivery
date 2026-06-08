@@ -22,6 +22,26 @@ module EventEngine
       registry
     end
 
+    def registry_with_process_type(process_type)
+      schema = EventDefinition::Schema.new(
+        event_name: :sale_processed,
+        event_version: 1,
+        event_type: :domain,
+        process_type: process_type,
+        required_inputs: [],
+        optional_inputs: [],
+        payload_fields: []
+      )
+      event_schema = EventSchema.new
+      event_schema.register(schema)
+      event_schema.finalize!
+
+      registry = SchemaRegistry.new
+      registry.reset!
+      registry.load_from_schema!(event_schema)
+      registry
+    end
+
     def capture_log(registry:, transport:)
       io = StringIO.new
       DefinitionTransportCheck.run(registry: registry, transport: transport, logger: Logger.new(io))
@@ -30,6 +50,12 @@ module EventEngine
 
     test "warns when a level 4 event has no real transport configured" do
       output = capture_log(registry: registry_with_level(4), transport: Transports::NullTransport.new)
+
+      assert_match(/sale_processed/, output)
+    end
+
+    test "warns when a :broker event has no real transport configured" do
+      output = capture_log(registry: registry_with_process_type(:broker), transport: Transports::NullTransport.new)
 
       assert_match(/sale_processed/, output)
     end

@@ -1,6 +1,6 @@
 module EventEngine
   # Inspects loaded event definitions at boot and logs a non-blocking warning
-  # when a level 4 event exists but no real transport is configured (a level 4
+  # when a :broker event exists but no real transport is configured (a :broker
   # event publishes to a broker, so it needs one). This is a soft, early signal;
   # the hard failure happens at runtime in {OutboxRouter} when such an event is
   # actually drained.
@@ -12,12 +12,12 @@ module EventEngine
     def self.run(registry:, transport:, logger:)
       return if real_transport?(transport)
 
-      level_four = registry.events.select { |name| registry.schema(name).event_level == 4 }
-      return if level_four.empty?
+      broker = registry.events.select { |name| registry.schema(name).process_type == :broker }
+      return if broker.empty?
 
       logger.warn(
-        "[EventEngine] No transport configured, but these level 4 events require one: " \
-        "#{level_four.join(', ')}. They will raise when published. Set config.transport."
+        "[EventEngine] No transport configured, but these :broker events require one: " \
+        "#{broker.join(', ')}. They will raise when published. Set config.transport."
       )
     end
 
