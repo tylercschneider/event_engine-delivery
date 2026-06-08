@@ -1,31 +1,36 @@
 module EventEngine
-  # Routes a drained outbox event to its destination based on +event_level+.
+  # Routes a drained outbox event to its destination based on +process_type+,
+  # falling back to the legacy integer +event_level+ when +process_type+ is absent.
   class OutboxRouter
-    # Raised when routing an event whose level has no supported destination.
-    class UnsupportedLevelError < StandardError; end
+    # Raised when routing an event whose process_type has no supported destination.
+    class UnsupportedProcessTypeError < StandardError; end
 
-    # Raised when a level 4 event is routed but no transport is configured.
+    # Raised when a :broker event is routed but no transport is configured.
     class MissingTransportError < StandardError; end
 
-    # @param transport [#publish] the broker transport used for level 4 events
+    # @param transport [#publish] the broker transport used for :broker events
     def initialize(transport:)
       @transport = transport
     end
 
-    # Dispatches a drained event to its level's destination.
+    # Dispatches a drained event to its process_type's destination.
     #
     # @param event [OutboxEvent] the drained event
     # @return [void]
     def route(event)
-      case event.event_level
-      when 3 then notify_subscribers(event)
-      when 4 then deliver_to_broker(event)
-      when 5 then raise UnsupportedLevelError, "event_level 5 (event sourcing) is not supported"
+      case process_type_for(event)
+      when :durable then notify_subscribers(event)
+      when :broker then deliver_to_broker(event)
+      when :sourced then raise UnsupportedProcessTypeError, "process_type :sourced (event sourcing) is not supported"
       else publish(event)
       end
     end
 
     private
+
+    def process_type_for(event)
+      (event.process_type || ProcessType.from_event_level(event.event_level))&.to_sym
+    end
 
     def notify_subscribers(record)
       event = Event.from(record)
@@ -37,7 +42,7 @@ module EventEngine
     def deliver_to_broker(event)
       if transport_missing?
         raise MissingTransportError,
-              "event_level 4 event '#{event.event_name}' requires a transport, but none is configured"
+              "process_type :broker event '#{event.event_name}' requires a transport, but none is configured"
       end
 
       publish(event)
