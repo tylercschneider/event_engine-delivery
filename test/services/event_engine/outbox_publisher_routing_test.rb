@@ -18,19 +18,6 @@ module EventEngine
       )
     end
 
-    test "drains a level 3 event to its subscribers" do
-      received = []
-      Class.new(EventEngine::Subscribers::Base) do
-        subscribes_to :"cow.milked"
-        define_method(:handle) { |event| received << event }
-      end
-      build_event(event_level: 3)
-
-      OutboxPublisher.new(router: OutboxRouter.new(transport: EventEngine::Transports::InMemoryTransport.new)).call
-
-      assert_equal 1, received.size
-    end
-
     test "drains a :durable event to its subscribers" do
       received = []
       Class.new(EventEngine::Subscribers::Base) do
@@ -44,13 +31,13 @@ module EventEngine
       assert_equal 1, received.size
     end
 
-    test "level 3 subscriber receives an Event with a symbol-keyed payload" do
+    test ":durable subscriber receives an Event with a symbol-keyed payload" do
       received = []
       Class.new(EventEngine::Subscribers::Base) do
         subscribes_to :"cow.milked"
         define_method(:handle) { |event| received << event }
       end
-      build_event(event_level: 3, payload: { amount: 5 })
+      build_event(process_type: "durable", payload: { amount: 5 })
 
       OutboxPublisher.new(router: OutboxRouter.new(transport: EventEngine::Transports::InMemoryTransport.new)).call
 
