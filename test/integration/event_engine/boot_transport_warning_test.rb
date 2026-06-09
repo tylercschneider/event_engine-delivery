@@ -5,13 +5,13 @@ class BootTransportWarningTest < ActiveSupport::TestCase
   class SaleProcessed < EventEngine::EventDefinition
     event_name :sale_processed
     event_type :domain
-    event_level 4
+    process_type :broker
 
     input :sale
     required_payload :total, from: :sale, attr: :total
   end
 
-  test "boot warns when a level 4 event has no real transport" do
+  test "boot warns when a :broker event has no real transport" do
     schema_file = Tempfile.new("event_schema.rb")
     EventEngine::EventSchemaDumper.dump!(definitions: [SaleProcessed], path: schema_file.path)
 
