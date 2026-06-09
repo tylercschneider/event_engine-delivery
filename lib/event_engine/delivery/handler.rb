@@ -3,8 +3,7 @@ module EventEngine
     # The delivery handler registered with EventEngine core. Receives a built
     # Event and handles only durable/broker events: it writes them to the outbox
     # and publishes them. :inline and :background events are run by
-    # event_engine-subscribers, not here. Falls back to the legacy integer
-    # event_level when process_type is absent.
+    # event_engine-subscribers, not here.
     class Handler
       def call(event)
         case process_type_for(event)
@@ -16,7 +15,7 @@ module EventEngine
       private
 
       def process_type_for(event)
-        (event.process_type || ProcessType.from_event_level(event.event_level))&.to_sym
+        event.process_type&.to_sym
       end
 
       def write_and_publish(event)

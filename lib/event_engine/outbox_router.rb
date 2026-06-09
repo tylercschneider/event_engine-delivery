@@ -1,6 +1,5 @@
 module EventEngine
-  # Routes a drained outbox event to its destination based on +process_type+,
-  # falling back to the legacy integer +event_level+ when +process_type+ is absent.
+  # Routes a drained outbox event to its destination based on +process_type+.
   class OutboxRouter
     # Raised when routing an event whose process_type has no supported destination.
     class UnsupportedProcessTypeError < StandardError; end
@@ -29,7 +28,7 @@ module EventEngine
     private
 
     def process_type_for(event)
-      (event.process_type || ProcessType.from_event_level(event.event_level))&.to_sym
+      event.process_type&.to_sym
     end
 
     def notify_subscribers(record)
