@@ -9,11 +9,10 @@ module EventEngine
         ::EventEngine::Subscribers::Registry.clear!
       end
 
-      def event(process_type: nil, event_level: nil)
+      def event(process_type: nil)
         ::EventEngine::Event.new(
           event_name: :cow_fed,
           process_type: process_type,
-          event_level: event_level,
           payload: { weight: 1200 }
         )
       end
