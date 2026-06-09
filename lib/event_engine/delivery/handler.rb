@@ -1,15 +1,14 @@
 module EventEngine
   module Delivery
     # The delivery handler registered with EventEngine core. Receives a built
-    # Event and routes it by process_type: :inline invokes subscribers
-    # in-process, :background enqueues that dispatch, and durable/broker events
-    # write to the outbox and publish. Falls back to the legacy integer
+    # Event and handles only durable/broker events: it writes them to the outbox
+    # and publishes them. :inline and :background events are run by
+    # event_engine-subscribers, not here. Falls back to the legacy integer
     # event_level when process_type is absent.
     class Handler
       def call(event)
         case process_type_for(event)
-        when :inline then dispatch_synchronously(event)
-        when :background then dispatch_in_background(event)
+        when :inline, :background then nil # run by event_engine-subscribers
         else write_and_publish(event)
         end
       end
@@ -18,18 +17,6 @@ module EventEngine
 
       def process_type_for(event)
         (event.process_type || ProcessType.from_event_level(event.event_level))&.to_sym
-      end
-
-      def dispatch_synchronously(event)
-        ::EventEngine::SubscriberRegistry.subscribers_for(event.event_name).each do |subscriber|
-          subscriber.new.handle(event)
-        end
-        event
-      end
-
-      def dispatch_in_background(event)
-        DispatchSubscribersJob.perform_later(event.event_name.to_s, event.to_h)
-        event
       end
 
       def write_and_publish(event)

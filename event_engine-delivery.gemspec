@@ -26,4 +26,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rails", ">= 7.1.6", "< 9"
   spec.add_dependency "event_engine"
+  spec.add_dependency "event_engine-subscribers"
 end

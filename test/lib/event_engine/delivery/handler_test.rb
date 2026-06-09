@@ -6,7 +6,7 @@ module EventEngine
       include ActiveJob::TestHelper
 
       teardown do
-        ::EventEngine::SubscriberRegistry.clear!
+        ::EventEngine::Subscribers::Registry.clear!
       end
 
       def event(process_type: nil, event_level: nil)
@@ -18,34 +18,22 @@ module EventEngine
         )
       end
 
-      test "dispatches an :inline event to subscribers synchronously" do
+      test "does not run subscribers for an :inline event (left to event_engine-subscribers)" do
         received = []
-        Class.new(::EventEngine::Subscriber) do
+        Class.new(::EventEngine::Subscribers::Base) do
           subscribes_to :cow_fed
           define_method(:handle) { |event| received << event }
         end
 
         Handler.new.call(event(process_type: :inline))
 
-        assert_equal 1, received.size
+        assert_empty received
       end
 
-      test "enqueues a :background event for asynchronous dispatch" do
-        assert_enqueued_with(job: DispatchSubscribersJob) do
+      test "does not enqueue a job for a :background event (left to event_engine-subscribers)" do
+        assert_no_enqueued_jobs do
           Handler.new.call(event(process_type: :background))
         end
-      end
-
-      test "derives dispatch from legacy event_level when process_type is absent" do
-        received = []
-        Class.new(::EventEngine::Subscriber) do
-          subscribes_to :cow_fed
-          define_method(:handle) { |event| received << event }
-        end
-
-        Handler.new.call(event(event_level: 1))
-
-        assert_equal 1, received.size
       end
     end
   end

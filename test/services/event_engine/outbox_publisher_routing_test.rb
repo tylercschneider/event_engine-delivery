@@ -3,7 +3,7 @@ require "test_helper"
 module EventEngine
   class OutboxPublisherRoutingTest < ActiveSupport::TestCase
     teardown do
-      SubscriberRegistry.clear!
+      EventEngine::Subscribers::Registry.clear!
     end
 
     def build_event(**overrides)
@@ -20,7 +20,7 @@ module EventEngine
 
     test "drains a level 3 event to its subscribers" do
       received = []
-      Class.new(Subscriber) do
+      Class.new(EventEngine::Subscribers::Base) do
         subscribes_to :"cow.milked"
         define_method(:handle) { |event| received << event }
       end
@@ -33,7 +33,7 @@ module EventEngine
 
     test "drains a :durable event to its subscribers" do
       received = []
-      Class.new(Subscriber) do
+      Class.new(EventEngine::Subscribers::Base) do
         subscribes_to :"cow.milked"
         define_method(:handle) { |event| received << event }
       end
@@ -46,7 +46,7 @@ module EventEngine
 
     test "level 3 subscriber receives an Event with a symbol-keyed payload" do
       received = []
-      Class.new(Subscriber) do
+      Class.new(EventEngine::Subscribers::Base) do
         subscribes_to :"cow.milked"
         define_method(:handle) { |event| received << event }
       end
