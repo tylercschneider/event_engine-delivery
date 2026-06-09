@@ -6,11 +6,10 @@ module EventEngine
       EventEngine::Subscribers::Registry.clear!
     end
 
-    def fake_event(event_name:, process_type: nil, event_level: nil, payload: {})
+    def fake_event(event_name:, process_type: nil, payload: {})
       EventEngine::Event.new(
         event_name: event_name,
         process_type: process_type,
-        event_level: event_level,
         payload: payload
       )
     end
@@ -59,19 +58,6 @@ module EventEngine
       assert_raises(EventEngine::OutboxRouter::UnsupportedProcessTypeError) do
         OutboxRouter.new(transport: nil).route(event)
       end
-    end
-
-    test "derives routing from legacy event_level when process_type is absent" do
-      received = []
-      Class.new(EventEngine::Subscribers::Base) do
-        subscribes_to :cow_milked
-        define_method(:handle) { |event| received << event }
-      end
-
-      router = OutboxRouter.new(transport: nil)
-      router.route(fake_event(event_name: :cow_milked, event_level: 3))
-
-      assert_equal 1, received.size
     end
   end
 end
