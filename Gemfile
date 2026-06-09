@@ -14,6 +14,15 @@ else
   gem "event_engine", github: "tylercschneider/event_engine"
 end
 
+# The subscribers gem owns subscriber execution (:inline/:background) and the
+# Subscriber API the :durable drain calls. Same local/CI resolution as core.
+event_engine_subscribers_path = File.expand_path("../event_engine-subscribers", __dir__)
+if File.directory?(event_engine_subscribers_path)
+  gem "event_engine-subscribers", path: event_engine_subscribers_path
+else
+  gem "event_engine-subscribers", github: "tylercschneider/event_engine-subscribers"
+end
+
 # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
 gem "rubocop-rails-omakase", require: false
 

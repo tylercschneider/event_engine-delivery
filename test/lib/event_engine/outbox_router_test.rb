@@ -3,7 +3,7 @@ require "test_helper"
 module EventEngine
   class OutboxRouterTest < ActiveSupport::TestCase
     teardown do
-      SubscriberRegistry.clear!
+      EventEngine::Subscribers::Registry.clear!
     end
 
     def fake_event(event_name:, process_type: nil, event_level: nil, payload: {})
@@ -17,7 +17,7 @@ module EventEngine
 
     test "routes a :durable event to its subscribers" do
       received = []
-      Class.new(Subscriber) do
+      Class.new(EventEngine::Subscribers::Base) do
         subscribes_to :cow_milked
         define_method(:handle) { |event| received << event }
       end
@@ -63,7 +63,7 @@ module EventEngine
 
     test "derives routing from legacy event_level when process_type is absent" do
       received = []
-      Class.new(Subscriber) do
+      Class.new(EventEngine::Subscribers::Base) do
         subscribes_to :cow_milked
         define_method(:handle) { |event| received << event }
       end
