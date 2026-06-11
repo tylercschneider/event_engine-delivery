@@ -23,6 +23,8 @@ else
   gem "event_engine-subscribers", github: "tylercschneider/event_engine-subscribers"
 end
 
+gem "the_local", github: "tylercschneider/the_local"
+
 # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
 gem "rubocop-rails-omakase", require: false
 
